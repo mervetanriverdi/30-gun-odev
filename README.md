@@ -1,4 +1,4 @@
-# shake-game
+# snake-game
 30 Günlük Yazılım Meydan Okuması kapsamında yapılacak klasik yılan oyunu.
 
 
