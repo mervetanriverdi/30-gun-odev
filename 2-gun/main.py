@@ -11,9 +11,24 @@ siyah = (0, 0, 0)
 yesil = (0, 255, 0)
 hucre = 20
 
-# Yılan başlangıç konumu: 3 parça
+import pygame
+import sys
+import random
+
+pygame.init()
+
+ekran = pygame.display.set_mode((600, 400))
+pygame.display.set_caption("Yılan Oyunu - 3. Gün")
+saat = pygame.time.Clock()
+
+siyah = (0, 0, 0)
+yesil = (0, 255, 0)
+hucre = 20
+
 yilan = [(100, 100), (80, 100), (60, 100)]
 yon = "sag"
+
+elma = (random.randint(0, 29) * hucre, random.randint(0, 19) * hucre)
 
 while True:
     for e in pygame.event.get():
@@ -41,9 +56,18 @@ while True:
         y += hucre
 
     yilan.insert(0, (x, y))
-    yilan.pop()
+
+    if yilan[0] == elma:
+        elma = (random.randint(0, 29) * hucre, random.randint(0, 19) * hucre)
+    else:
+        yilan.pop()
 
     ekran.fill(siyah)
+
+    # Elmayı çiz
+    pygame.draw.rect(ekran, (255, 0, 0), (elma[0], elma[1], hucre, hucre))
+
+    # Yılanı çiz
     for parca in yilan:
         pygame.draw.rect(ekran, yesil, (parca[0], parca[1], hucre, hucre))
 
