@@ -44,6 +44,13 @@ while True:
 
     yeni_bas = (x, y)
 
+        # Duvara çarpma kontrolü
+    if x < 0 or x >= 600 or y < 0 or y >= 400:
+        print("Oyun Bitti! Yılan duvara çarptı.")
+        pygame.quit()
+        sys.exit()
+
+
     if yeni_bas in yilan:
         print("Oyun Bitti! Yılan kendine çarptı.")
         pygame.quit()
