@@ -5,17 +5,33 @@ import random
 pygame.init()
 
 ekran = pygame.display.set_mode((600, 400))
-pygame.display.set_caption("Yılan Oyunu - 4. Gün")
+pygame.display.set_caption("Yılan Oyunu - 5. Gün")
 saat = pygame.time.Clock()
 
 siyah = (0, 0, 0)
 yesil = (0, 255, 0)
+kirmizi = (255, 0, 0)
+beyaz = (255, 255, 255)
 hucre = 20
+
+font = pygame.font.SysFont(None, 36)
 
 yilan = [(100, 100), (80, 100), (60, 100)]
 yon = "sag"
 
 elma = (random.randint(0, 29) * hucre, random.randint(0, 19) * hucre)
+skor = 0
+
+def oyun_bitti_ekrani(skor):
+    ekran.fill(siyah)
+    oyun_bitti_yazi = font.render("Oyun Bitti!", True, kirmizi)
+    skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
+    ekran.blit(oyun_bitti_yazi, (200, 150))
+    ekran.blit(skor_yazi, (250, 200))
+    pygame.display.flip()
+    pygame.time.wait(3000)  # 3 saniye bekletip kapat
+    pygame.quit()
+    sys.exit()
 
 while True:
     for e in pygame.event.get():
@@ -44,31 +60,30 @@ while True:
 
     yeni_bas = (x, y)
 
-        # Duvara çarpma kontrolü
     if x < 0 or x >= 600 or y < 0 or y >= 400:
-        print("Oyun Bitti! Yılan duvara çarptı.")
-        pygame.quit()
-        sys.exit()
-
+        oyun_bitti_ekrani(skor)
 
     if yeni_bas in yilan:
-        print("Oyun Bitti! Yılan kendine çarptı.")
-        pygame.quit()
-        sys.exit()
+        oyun_bitti_ekrani(skor)
 
     yilan.insert(0, yeni_bas)
 
     if yeni_bas == elma:
+        skor += 1
         elma = (random.randint(0, 29) * hucre, random.randint(0, 19) * hucre)
     else:
         yilan.pop()
 
     ekran.fill(siyah)
 
-    pygame.draw.rect(ekran, (255, 0, 0), (elma[0], elma[1], hucre, hucre))
+    pygame.draw.rect(ekran, kirmizi, (elma[0], elma[1], hucre, hucre))
 
     for parca in yilan:
         pygame.draw.rect(ekran, yesil, (parca[0], parca[1], hucre, hucre))
+
+    # artık kaç elma yediğini görebiliyoruz
+    skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
+    ekran.blit(skor_yazi, (10, 10))
 
     pygame.display.flip()
     saat.tick(10)
