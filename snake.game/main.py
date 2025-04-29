@@ -5,7 +5,7 @@ import random
 pygame.init()
 
 ekran = pygame.display.set_mode((600, 400))
-pygame.display.set_caption("Yılan Oyunu - 5. Gün")
+pygame.display.set_caption("Yılan Oyunu - 6. Gün")
 saat = pygame.time.Clock()
 
 siyah = (0, 0, 0)
@@ -21,6 +21,7 @@ yon = "sag"
 
 elma = (random.randint(0, 29) * hucre, random.randint(0, 19) * hucre)
 skor = 0
+hiz = 10  # Başlangıç hızı
 
 def oyun_bitti_ekrani(skor):
     ekran.fill(siyah)
@@ -29,7 +30,7 @@ def oyun_bitti_ekrani(skor):
     ekran.blit(oyun_bitti_yazi, (200, 150))
     ekran.blit(skor_yazi, (250, 200))
     pygame.display.flip()
-    pygame.time.wait(3000)  # 3 saniye bekletip kapat
+    pygame.time.wait(3000)
     pygame.quit()
     sys.exit()
 
@@ -60,31 +61,28 @@ while True:
 
     yeni_bas = (x, y)
 
-    if x < 0 or x >= 600 or y < 0 or y >= 400:
-        oyun_bitti_ekrani(skor)
-
-    if yeni_bas in yilan:
+    if x < 0 or x >= 600 or y < 0 or y >= 400 or yeni_bas in yilan:
         oyun_bitti_ekrani(skor)
 
     yilan.insert(0, yeni_bas)
 
     if yeni_bas == elma:
         skor += 1
+        if skor % 5 == 0:
+            hiz += 2  # Her 5 elmada hızlan
         elma = (random.randint(0, 29) * hucre, random.randint(0, 19) * hucre)
     else:
         yilan.pop()
 
     ekran.fill(siyah)
-
     pygame.draw.rect(ekran, kirmizi, (elma[0], elma[1], hucre, hucre))
 
     for parca in yilan:
         pygame.draw.rect(ekran, yesil, (parca[0], parca[1], hucre, hucre))
 
-    # artık kaç elma yediğini görebiliyoruz
     skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
     ekran.blit(skor_yazi, (10, 10))
 
     pygame.display.flip()
-    saat.tick(10)
+    saat.tick(hiz)
 
