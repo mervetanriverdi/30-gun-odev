@@ -7,13 +7,14 @@ pygame.init()
 # Ekran ve temel ayarlar
 GENISLIK, YUKSEKLIK = 600, 400
 ekran = pygame.display.set_mode((GENISLIK, YUKSEKLIK))
-pygame.display.set_caption("Yılan Oyunu - 6. Gün Gelişmiş")
+pygame.display.set_caption("Yılan Oyunu - 7. Gün Gelişmiş")
 saat = pygame.time.Clock()
 
 # Renkler
 siyah = (0, 0, 0)
 yesil = (0, 255, 0)
 kirmizi = (255, 0, 0)
+mavi = (0, 0, 255)
 beyaz = (255, 255, 255)
 hucre = 20
 
@@ -71,11 +72,15 @@ def oyun(skor=0, hiz=10):
         else:
             yilan.pop()
 
-        ekran.fill(siyah)
+        ekran.fill(mavi)  # Yeni arka plan rengi
         pygame.draw.rect(ekran, kirmizi, (elma[0], elma[1], hucre, hucre))
 
-        for parca in yilan:
-            pygame.draw.rect(ekran, yesil, (parca[0], parca[1], hucre, hucre))
+        # Yılanın daha ilginç şekilde çizilmesi
+        for i, parca in enumerate(yilan):
+            if i == 0:  # Baş kısmı daha farklı yapalım
+                pygame.draw.circle(ekran, yesil, (parca[0] + hucre // 2, parca[1] + hucre // 2), hucre // 2)
+            else:
+                pygame.draw.rect(ekran, yesil, (parca[0], parca[1], hucre, hucre))
 
         skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
         ekran.blit(skor_yazi, (10, 10))
@@ -85,7 +90,7 @@ def oyun(skor=0, hiz=10):
 
 def oyun_bitti_ekrani(skor):
     while True:
-        ekran.fill(siyah)
+        ekran.fill(mavi)
         oyun_bitti_yazi = font.render("Oyun Bitti!", True, kirmizi)
         skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
         tekrar_yazi = font.render("R - Tekrar Oyna | ESC - Çık", True, beyaz)
@@ -110,5 +115,3 @@ def oyun_bitti_ekrani(skor):
 while True:
     skor = oyun()
     oyun_bitti_ekrani(skor)
-
-
