@@ -7,7 +7,7 @@ pygame.init()
 # Ekran ve temel ayarlar
 GENISLIK, YUKSEKLIK = 600, 400
 ekran = pygame.display.set_mode((GENISLIK, YUKSEKLIK))
-pygame.display.set_caption("Yılan Oyunu - 7. Gün Gelişmiş")
+pygame.display.set_caption("Yılan Oyunu - 8. Gün Gelişmiş")
 saat = pygame.time.Clock()
 
 # Renkler
@@ -25,6 +25,17 @@ def yeni_elma_uret(yilan):
         elma = (random.randint(0, 29) * hucre, random.randint(0, 19) * hucre)
         if elma not in yilan:
             return elma
+
+def yuksek_skoru_yukle():
+    try:
+        with open("skor.txt", "r") as dosya:
+            return int(dosya.read())
+    except:
+        return 0
+
+def yuksek_skoru_kaydet(skor):
+    with open("skor.txt", "w") as dosya:
+        dosya.write(str(skor))
 
 def oyun(skor=0, hiz=10):
     yilan = [(100, 100), (80, 100), (60, 100)]
@@ -89,15 +100,22 @@ def oyun(skor=0, hiz=10):
         saat.tick(hiz)
 
 def oyun_bitti_ekrani(skor):
+    yuksek_skor = yuksek_skoru_yukle()
+    if skor > yuksek_skor:
+        yuksek_skor = skor
+        yuksek_skoru_kaydet(skor)
+
     while True:
         ekran.fill(mavi)
         oyun_bitti_yazi = font.render("Oyun Bitti!", True, kirmizi)
         skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
+        yuksek_yazi = font.render(f"Yüksek Skor: {yuksek_skor}", True, beyaz)
         tekrar_yazi = font.render("R - Tekrar Oyna | ESC - Çık", True, beyaz)
 
-        ekran.blit(oyun_bitti_yazi, (200, 130))
-        ekran.blit(skor_yazi, (240, 180))
-        ekran.blit(tekrar_yazi, (160, 230))
+        ekran.blit(oyun_bitti_yazi, (200, 110))
+        ekran.blit(skor_yazi, (240, 160))
+        ekran.blit(yuksek_yazi, (210, 200))
+        ekran.blit(tekrar_yazi, (160, 250))
         pygame.display.flip()
 
         for e in pygame.event.get():
