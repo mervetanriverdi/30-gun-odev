@@ -1,13 +1,14 @@
 import pygame
 import sys
 import random
+import time
 
 pygame.init()
 
 # Ekran ve temel ayarlar
 GENISLIK, YUKSEKLIK = 600, 400
 ekran = pygame.display.set_mode((GENISLIK, YUKSEKLIK))
-pygame.display.set_caption("Yılan Oyunu - 8. Gün Gelişmiş")
+pygame.display.set_caption("Yılan Oyunu - Zaman Kısıtlamalı")
 saat = pygame.time.Clock()
 
 # Renkler
@@ -19,6 +20,10 @@ beyaz = (255, 255, 255)
 hucre = 20
 
 font = pygame.font.SysFont(None, 36)
+
+# Ses Efektleri
+yilan_yedi_ses = pygame.mixer.Sound("yilan_yedi.wav")
+oyun_bitti_ses = pygame.mixer.Sound("oyun_bitti.wav")
 
 def yeni_elma_uret(yilan):
     while True:
@@ -37,10 +42,14 @@ def yuksek_skoru_kaydet(skor):
     with open("skor.txt", "w") as dosya:
         dosya.write(str(skor))
 
-def oyun(skor=0, hiz=10):
+def oyun(skor=0, hiz=10, sure_limit=30):
     yilan = [(100, 100), (80, 100), (60, 100)]
     yon = "sag"
     elma = yeni_elma_uret(yilan)
+    arka_plan_rengi = mavi
+
+    # Zaman başlatılıyor
+    baslangic_zamani = time.time()
 
     while True:
         for e in pygame.event.get():
@@ -57,6 +66,12 @@ def oyun(skor=0, hiz=10):
                 elif e.key == pygame.K_DOWN and yon != "yukari":
                     yon = "asagi"
 
+        # Geçen süreyi kontrol et
+        gecen_zaman = time.time() - baslangic_zamani
+        if gecen_zaman >= sure_limit:
+            oyun_bitti_ses.play()
+            return skor  # Zaman doldu, oyunu bitir
+
         x, y = yilan[0]
         if yon == "sag":
             x += hucre
@@ -71,19 +86,25 @@ def oyun(skor=0, hiz=10):
 
         # Çarpma kontrolleri
         if x < 0 or x >= GENISLIK or y < 0 or y >= YUKSEKLIK or yeni_bas in yilan:
-            return skor  # Skoru döndür, ana döngüde oyun bitti ekranı aç
+            oyun_bitti_ses.play()
+            return skor
 
         yilan.insert(0, yeni_bas)
 
         if yeni_bas == elma:
             skor += 1
-            if skor % 5 == 0 and hiz < 30:  # Maksimum hızı sınırla
+            yilan_yedi_ses.play()
+            if skor % 5 == 0 and hiz < 30:
                 hiz += 2
             elma = yeni_elma_uret(yilan)
         else:
             yilan.pop()
 
-        ekran.fill(mavi)  # Yeni arka plan rengi
+        # Arka plan rengini değiştirme
+        if skor % 5 == 0:
+            arka_plan_rengi = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+        ekran.fill(arka_plan_rengi)
         pygame.draw.rect(ekran, kirmizi, (elma[0], elma[1], hucre, hucre))
 
         # Yılanın daha ilginç şekilde çizilmesi
@@ -93,8 +114,13 @@ def oyun(skor=0, hiz=10):
             else:
                 pygame.draw.rect(ekran, yesil, (parca[0], parca[1], hucre, hucre))
 
+        # Skor ve kalan zamanı gösterme
         skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
         ekran.blit(skor_yazi, (10, 10))
+
+        kalan_sure = int(sure_limit - gecen_zaman)
+        zaman_yazi = font.render(f"Kalan Süre: {kalan_sure}s", True, beyaz)
+        ekran.blit(zaman_yazi, (GENISLIK - 200, 10))
 
         pygame.display.flip()
         saat.tick(hiz)
@@ -131,5 +157,5 @@ def oyun_bitti_ekrani(skor):
 
 # Ana döngü
 while True:
-    skor = oyun()
+    skor = oyun(skor=0, hiz=10, sure_limit=30)  # 30 saniyelik zaman limitini ayarla
     oyun_bitti_ekrani(skor)
