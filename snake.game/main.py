@@ -5,10 +5,10 @@ import time
 
 pygame.init()
 
-# Ekran ve temel ayarlar
+# Ekran ayarları
 GENISLIK, YUKSEKLIK = 600, 400
 ekran = pygame.display.set_mode((GENISLIK, YUKSEKLIK))
-pygame.display.set_caption("Yılan Oyunu - Zaman Kısıtlamalı")
+pygame.display.set_caption("Yılan Oyunu - (Zaman + Engel)")
 saat = pygame.time.Clock()
 
 # Renkler
@@ -17,18 +17,15 @@ yesil = (0, 255, 0)
 kirmizi = (255, 0, 0)
 mavi = (0, 0, 255)
 beyaz = (255, 255, 255)
+gri = (100, 100, 100)
 hucre = 20
 
 font = pygame.font.SysFont(None, 36)
 
-# Ses Efektleri
-yilan_yedi_ses = pygame.mixer.Sound("yilan_yedi.wav")
-oyun_bitti_ses = pygame.mixer.Sound("oyun_bitti.wav")
-
-def yeni_elma_uret(yilan):
+def yeni_elma_uret(yilan, engeller):
     while True:
         elma = (random.randint(0, 29) * hucre, random.randint(0, 19) * hucre)
-        if elma not in yilan:
+        if elma not in yilan and elma not in engeller:
             return elma
 
 def yuksek_skoru_yukle():
@@ -45,10 +42,15 @@ def yuksek_skoru_kaydet(skor):
 def oyun(skor=0, hiz=10, sure_limit=30):
     yilan = [(100, 100), (80, 100), (60, 100)]
     yon = "sag"
-    elma = yeni_elma_uret(yilan)
-    arka_plan_rengi = mavi
+    
+    # Engelleri tanımla
+    engeller = [
+        (200, 100), (200, 120), (200, 140),
+        (400, 200), (420, 200), (440, 200),
+        (300, 300), (300, 320), (300, 340)
+    ]
 
-    # Zaman başlatılıyor
+    elma = yeni_elma_uret(yilan, engeller)
     baslangic_zamani = time.time()
 
     while True:
@@ -66,11 +68,10 @@ def oyun(skor=0, hiz=10, sure_limit=30):
                 elif e.key == pygame.K_DOWN and yon != "yukari":
                     yon = "asagi"
 
-        # Geçen süreyi kontrol et
+        # Süre kontrolü
         gecen_zaman = time.time() - baslangic_zamani
         if gecen_zaman >= sure_limit:
-            oyun_bitti_ses.play()
-            return skor  # Zaman doldu, oyunu bitir
+            return skor
 
         x, y = yilan[0]
         if yon == "sag":
@@ -84,37 +85,43 @@ def oyun(skor=0, hiz=10, sure_limit=30):
 
         yeni_bas = (x, y)
 
-        # Çarpma kontrolleri
-        if x < 0 or x >= GENISLIK or y < 0 or y >= YUKSEKLIK or yeni_bas in yilan:
-            oyun_bitti_ses.play()
+        # Çarpma kontrolleri (duvar, kendine, engel)
+        if (
+            x < 0 or x >= GENISLIK or 
+            y < 0 or y >= YUKSEKLIK or 
+            yeni_bas in yilan or 
+            yeni_bas in engeller
+        ):
             return skor
 
         yilan.insert(0, yeni_bas)
 
         if yeni_bas == elma:
             skor += 1
-            yilan_yedi_ses.play()
             if skor % 5 == 0 and hiz < 30:
                 hiz += 2
-            elma = yeni_elma_uret(yilan)
+            elma = yeni_elma_uret(yilan, engeller)
         else:
             yilan.pop()
 
-        # Arka plan rengini değiştirme
-        if skor % 5 == 0:
-            arka_plan_rengi = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        # Ekranı temizle
+        ekran.fill(mavi)
 
-        ekran.fill(arka_plan_rengi)
+        # Elmayı çiz
         pygame.draw.rect(ekran, kirmizi, (elma[0], elma[1], hucre, hucre))
 
-        # Yılanın daha ilginç şekilde çizilmesi
+        # Engelleri çiz
+        for engel in engeller:
+            pygame.draw.rect(ekran, gri, (engel[0], engel[1], hucre, hucre))
+
+        # Yılanı çiz
         for i, parca in enumerate(yilan):
-            if i == 0:  # Baş kısmı daha farklı yapalım
+            if i == 0:
                 pygame.draw.circle(ekran, yesil, (parca[0] + hucre // 2, parca[1] + hucre // 2), hucre // 2)
             else:
                 pygame.draw.rect(ekran, yesil, (parca[0], parca[1], hucre, hucre))
 
-        # Skor ve kalan zamanı gösterme
+        # Skor ve kalan süre
         skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
         ekran.blit(skor_yazi, (10, 10))
 
@@ -150,12 +157,12 @@ def oyun_bitti_ekrani(skor):
                 sys.exit()
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_r:
-                    return  # Oyunu yeniden başlat
+                    return
                 elif e.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
 
 # Ana döngü
 while True:
-    skor = oyun(skor=0, hiz=10, sure_limit=30)  # 30 saniyelik zaman limitini ayarla
+    skor = oyun(skor=0, hiz=10, sure_limit=30)
     oyun_bitti_ekrani(skor)
