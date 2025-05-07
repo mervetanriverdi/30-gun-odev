@@ -162,7 +162,24 @@ def oyun_bitti_ekrani(skor):
                     pygame.quit()
                     sys.exit()
 
+def baslangic_ekrani():
+    while True:
+        ekran.fill(mavi)
+        baslik = font.render("Yılan Oyunu", True, beyaz)
+        basla_yazi = font.render("Başlamak için herhangi bir tuşa basın", True, beyaz)
+        ekran.blit(baslik, (GENISLIK // 2 - baslik.get_width() // 2, 130))
+        ekran.blit(basla_yazi, (GENISLIK // 2 - basla_yazi.get_width() // 2, 180))
+        pygame.display.flip()
+
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif e.type == pygame.KEYDOWN:
+                return
+
 # Ana döngü
 while True:
+    baslangic_ekrani()
     skor = oyun(skor=0, hiz=10, sure_limit=30)
     oyun_bitti_ekrani(skor)
