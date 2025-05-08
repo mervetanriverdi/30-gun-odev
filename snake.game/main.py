@@ -8,7 +8,7 @@ pygame.init()
 # Ekran ayarları
 GENISLIK, YUKSEKLIK = 600, 400
 ekran = pygame.display.set_mode((GENISLIK, YUKSEKLIK))
-pygame.display.set_caption("Yılan Oyunu - (Zaman + Engel)")
+pygame.display.set_caption("Yılan Oyunu - (afiiyet olsun )")
 saat = pygame.time.Clock()
 
 # Renkler
@@ -43,7 +43,6 @@ def oyun(skor=0, hiz=10, sure_limit=30):
     yilan = [(100, 100), (80, 100), (60, 100)]
     yon = "sag"
     
-    # Engelleri tanımla
     engeller = [
         (200, 100), (200, 120), (200, 140),
         (400, 200), (420, 200), (440, 200),
@@ -52,6 +51,9 @@ def oyun(skor=0, hiz=10, sure_limit=30):
 
     elma = yeni_elma_uret(yilan, engeller)
     baslangic_zamani = time.time()
+
+    mesaj = ""
+    mesaj_zamani = 0
 
     while True:
         for e in pygame.event.get():
@@ -85,7 +87,6 @@ def oyun(skor=0, hiz=10, sure_limit=30):
 
         yeni_bas = (x, y)
 
-        # Çarpma kontrolleri (duvar, kendine, engel)
         if (
             x < 0 or x >= GENISLIK or 
             y < 0 or y >= YUKSEKLIK or 
@@ -98,36 +99,38 @@ def oyun(skor=0, hiz=10, sure_limit=30):
 
         if yeni_bas == elma:
             skor += 1
+            mesaj = "Afiyet olsun!"
+            mesaj_zamani = time.time()
             if skor % 5 == 0 and hiz < 30:
                 hiz += 2
             elma = yeni_elma_uret(yilan, engeller)
         else:
             yilan.pop()
 
-        # Ekranı temizle
         ekran.fill(mavi)
 
-        # Elmayı çiz
         pygame.draw.rect(ekran, kirmizi, (elma[0], elma[1], hucre, hucre))
 
-        # Engelleri çiz
         for engel in engeller:
             pygame.draw.rect(ekran, gri, (engel[0], engel[1], hucre, hucre))
 
-        # Yılanı çiz
         for i, parca in enumerate(yilan):
             if i == 0:
                 pygame.draw.circle(ekran, yesil, (parca[0] + hucre // 2, parca[1] + hucre // 2), hucre // 2)
             else:
                 pygame.draw.rect(ekran, yesil, (parca[0], parca[1], hucre, hucre))
 
-        # Skor ve kalan süre
         skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
         ekran.blit(skor_yazi, (10, 10))
 
         kalan_sure = int(sure_limit - gecen_zaman)
         zaman_yazi = font.render(f"Kalan Süre: {kalan_sure}s", True, beyaz)
         ekran.blit(zaman_yazi, (GENISLIK - 200, 10))
+
+        # Afiyet olsun mesajı
+        if mesaj and time.time() - mesaj_zamani < 1.5:
+            mesaj_yazi = font.render(mesaj, True, beyaz)
+            ekran.blit(mesaj_yazi, (10, 50))
 
         pygame.display.flip()
         saat.tick(hiz)
