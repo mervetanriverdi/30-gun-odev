@@ -8,16 +8,17 @@ pygame.init()
 # Ekran ayarları
 GENISLIK, YUKSEKLIK = 600, 400
 ekran = pygame.display.set_mode((GENISLIK, YUKSEKLIK))
-pygame.display.set_caption("Yılan Oyunu - (afiiyet olsun )")
+pygame.display.set_caption("Yılan Oyunu - (afiyet olsun )")
 saat = pygame.time.Clock()
 
 # Renkler
 siyah = (0, 0, 0)
 yesil = (0, 255, 0)
+koyu_yesil = (0, 150, 0)
 kirmizi = (255, 0, 0)
-mavi = (0, 0, 255)
 beyaz = (255, 255, 255)
 gri = (100, 100, 100)
+arka_plan = (0, 80, 0)
 hucre = 20
 
 font = pygame.font.SysFont(None, 36)
@@ -54,6 +55,7 @@ def oyun(skor=0, hiz=10, sure_limit=30):
 
     mesaj = ""
     mesaj_zamani = 0
+    duraklatildi = False
 
     while True:
         for e in pygame.event.get():
@@ -69,8 +71,13 @@ def oyun(skor=0, hiz=10, sure_limit=30):
                     yon = "yukari"
                 elif e.key == pygame.K_DOWN and yon != "yukari":
                     yon = "asagi"
+                elif e.key == pygame.K_p:
+                    duraklatildi = not duraklatildi
 
-        # Süre kontrolü
+        if duraklatildi:
+            pygame.time.delay(100)
+            continue
+
         gecen_zaman = time.time() - baslangic_zamani
         if gecen_zaman >= sure_limit:
             return skor
@@ -99,7 +106,7 @@ def oyun(skor=0, hiz=10, sure_limit=30):
 
         if yeni_bas == elma:
             skor += 1
-            mesaj = "Afiyet olsun!"
+            mesaj = "Mmm lezzetli!"
             mesaj_zamani = time.time()
             if skor % 5 == 0 and hiz < 30:
                 hiz += 2
@@ -107,8 +114,7 @@ def oyun(skor=0, hiz=10, sure_limit=30):
         else:
             yilan.pop()
 
-        ekran.fill(mavi)
-
+        ekran.fill(arka_plan)
         pygame.draw.rect(ekran, kirmizi, (elma[0], elma[1], hucre, hucre))
 
         for engel in engeller:
@@ -116,7 +122,7 @@ def oyun(skor=0, hiz=10, sure_limit=30):
 
         for i, parca in enumerate(yilan):
             if i == 0:
-                pygame.draw.circle(ekran, yesil, (parca[0] + hucre // 2, parca[1] + hucre // 2), hucre // 2)
+                pygame.draw.circle(ekran, koyu_yesil, (parca[0] + hucre // 2, parca[1] + hucre // 2), hucre // 2)
             else:
                 pygame.draw.rect(ekran, yesil, (parca[0], parca[1], hucre, hucre))
 
@@ -127,7 +133,6 @@ def oyun(skor=0, hiz=10, sure_limit=30):
         zaman_yazi = font.render(f"Kalan Süre: {kalan_sure}s", True, beyaz)
         ekran.blit(zaman_yazi, (GENISLIK - 200, 10))
 
-        # Afiyet olsun mesajı
         if mesaj and time.time() - mesaj_zamani < 1.5:
             mesaj_yazi = font.render(mesaj, True, beyaz)
             ekran.blit(mesaj_yazi, (10, 50))
@@ -142,15 +147,15 @@ def oyun_bitti_ekrani(skor):
         yuksek_skoru_kaydet(skor)
 
     while True:
-        ekran.fill(mavi)
+        ekran.fill(arka_plan)
         oyun_bitti_yazi = font.render("Oyun Bitti!", True, kirmizi)
         skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
         yuksek_yazi = font.render(f"Yüksek Skor: {yuksek_skor}", True, beyaz)
         tekrar_yazi = font.render("R - Tekrar Oyna | ESC - Çık", True, beyaz)
 
-        ekran.blit(oyun_bitti_yazi, (200, 110))
-        ekran.blit(skor_yazi, (240, 160))
-        ekran.blit(yuksek_yazi, (210, 200))
+        ekran.blit(oyun_bitti_yazi, (200, 100))
+        ekran.blit(skor_yazi, (240, 150))
+        ekran.blit(yuksek_yazi, (210, 190))
         ekran.blit(tekrar_yazi, (160, 250))
         pygame.display.flip()
 
@@ -167,11 +172,13 @@ def oyun_bitti_ekrani(skor):
 
 def baslangic_ekrani():
     while True:
-        ekran.fill(mavi)
+        ekran.fill(arka_plan)
         baslik = font.render("Yılan Oyunu", True, beyaz)
-        basla_yazi = font.render("Başlamak için herhangi bir tuşa basın", True, beyaz)
-        ekran.blit(baslik, (GENISLIK // 2 - baslik.get_width() // 2, 130))
-        ekran.blit(basla_yazi, (GENISLIK // 2 - basla_yazi.get_width() // 2, 180))
+        alt_yazi = font.render("Bugün de doyacağız!", True, beyaz)
+        basla_yazi = font.render("Başlamak için bir tuşa bas", True, beyaz)
+        ekran.blit(baslik, (GENISLIK // 2 - baslik.get_width() // 2, 110))
+        ekran.blit(alt_yazi, (GENISLIK // 2 - alt_yazi.get_width() // 2, 150))
+        ekran.blit(basla_yazi, (GENISLIK // 2 - basla_yazi.get_width() // 2, 200))
         pygame.display.flip()
 
         for e in pygame.event.get():
