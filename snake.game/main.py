@@ -8,7 +8,7 @@ pygame.init()
 # Ekran ayarları
 GENISLIK, YUKSEKLIK = 600, 400
 ekran = pygame.display.set_mode((GENISLIK, YUKSEKLIK))
-pygame.display.set_caption("Yılan Oyunu - (afiyet olsun )")
+pygame.display.set_caption("Yılan Oyunu - (yeni gün, yeni lezzetler!)")
 saat = pygame.time.Clock()
 
 # Renkler
@@ -106,7 +106,7 @@ def oyun(skor=0, hiz=10, sure_limit=30):
 
         if yeni_bas == elma:
             skor += 1
-            mesaj = "Mmm lezzetli!"
+            mesaj = random.choice(["Taptaze!", "Güne güzel başladık!", "Lezzetliydi!", "Enerji depolandı!"])
             mesaj_zamani = time.time()
             if skor % 5 == 0 and hiz < 30:
                 hiz += 2
@@ -148,14 +148,14 @@ def oyun_bitti_ekrani(skor):
 
     while True:
         ekran.fill(arka_plan)
-        oyun_bitti_yazi = font.render("Oyun Bitti!", True, kirmizi)
-        skor_yazi = font.render(f"Skor: {skor}", True, beyaz)
-        yuksek_yazi = font.render(f"Yüksek Skor: {yuksek_skor}", True, beyaz)
+        oyun_bitti_yazi = font.render("Günün sonu geldi!", True, kirmizi)
+        skor_yazi = font.render(f"Skorun: {skor}", True, beyaz)
+        yuksek_yazi = font.render(f"Rekor: {yuksek_skor}", True, beyaz)
         tekrar_yazi = font.render("R - Tekrar Oyna | ESC - Çık", True, beyaz)
 
         ekran.blit(oyun_bitti_yazi, (200, 100))
         ekran.blit(skor_yazi, (240, 150))
-        ekran.blit(yuksek_yazi, (210, 190))
+        ekran.blit(yuksek_yazi, (230, 190))
         ekran.blit(tekrar_yazi, (160, 250))
         pygame.display.flip()
 
@@ -171,12 +171,20 @@ def oyun_bitti_ekrani(skor):
                     sys.exit()
 
 def baslangic_ekrani():
+    motivasyonlar = [
+        "Yeni gün, yeni rekor!",
+        "Bugün daha uzun hayatta kal!",
+        "Kahvaltı vakti: Elmaları topla!",
+        "Enerjini topla, rekoru kır!"
+    ]
+    rastgele_mesaj = random.choice(motivasyonlar)
+    
     while True:
         ekran.fill(arka_plan)
-        baslik = font.render("Yılan Oyunu", True, beyaz)
-        alt_yazi = font.render("Bugün de doyacağız!", True, beyaz)
+        baslik = font.render("Yılan Oyunu - Günlük Doz", True, beyaz)
+        alt_yazi = font.render(rastgele_mesaj, True, beyaz)
         basla_yazi = font.render("Başlamak için bir tuşa bas", True, beyaz)
-        ekran.blit(baslik, (GENISLIK // 2 - baslik.get_width() // 2, 110))
+        ekran.blit(baslik, (GENISLIK // 2 - baslik.get_width() // 2, 100))
         ekran.blit(alt_yazi, (GENISLIK // 2 - alt_yazi.get_width() // 2, 150))
         ekran.blit(basla_yazi, (GENISLIK // 2 - basla_yazi.get_width() // 2, 200))
         pygame.display.flip()
@@ -193,3 +201,4 @@ while True:
     baslangic_ekrani()
     skor = oyun(skor=0, hiz=10, sure_limit=30)
     oyun_bitti_ekrani(skor)
+
