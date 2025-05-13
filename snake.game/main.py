@@ -21,6 +21,8 @@ mavi = (0, 0, 255)
 beyaz = (255, 255, 255)
 gri = (100, 100, 100)
 arka_plan = (0, 80, 0)
+altin = (255, 215, 0)  # Altın sarısı
+
 
 # Font
 font = pygame.font.SysFont(None, 36)
@@ -67,7 +69,7 @@ class Elma:
         while True:
             konum = (random.randint(0, 29) * HUCRE, random.randint(0, 19) * HUCRE)
             if konum not in yilan and konum not in engeller:
-                tur = "mavi" if random.random() < 0.2 else "kirmizi"
+                tur = "altin" if random.random() < 0.2 else "kirmizi"
                 return tur, konum
 
     def ciz(self):
@@ -132,7 +134,7 @@ class Oyun:
                     self.yilan.kısalt(0)
                 else:
                     self.skor += 3
-                    self.mesaj = "Bonus Vitamin Deposu!"
+                    self.mesaj = "ALTIN ELMAYI KAPTIN !"
                     self.yilan.kısalt(-2)
                 self.mesaj_zamani = time.time()
                 if self.skor % 5 == 0 and self.hiz < 30:
