@@ -9,7 +9,7 @@ pygame.init()
 GENISLIK, YUKSEKLIK = 600, 400
 HUCRE = 20
 ekran = pygame.display.set_mode((GENISLIK, YUKSEKLIK))
-pygame.display.set_caption("Yılan Oyunu - (mavi elma güncellemesi!)")
+pygame.display.set_caption("Yılan Oyunu - (hayalet mod güncellemesi!)")
 saat = pygame.time.Clock()
 
 # Renkler
@@ -17,12 +17,11 @@ siyah = (0, 0, 0)
 yesil = (0, 255, 0)
 koyu_yesil = (0, 150, 0)
 kirmizi = (255, 0, 0)
-mavi = (0, 0, 255)
 beyaz = (255, 255, 255)
 gri = (100, 100, 100)
 arka_plan = (0, 80, 0)
-altin = (255, 215, 0)  # Altın sarısı
-
+altin = (255, 215, 0)
+mor = (200, 0, 200)
 
 # Font
 font = pygame.font.SysFont(None, 36)
@@ -52,14 +51,20 @@ class Yilan:
         for _ in range(miktar):
             self.beden.pop()
 
-    def carpisti_mi(self, engeller):
+    def carpisti_mi(self, engeller, hayalet_mod=False):
         bas = self.beden[0]
-        return (
-            bas in self.beden[1:] or
-            bas in engeller or
-            bas[0] < 0 or bas[0] >= GENISLIK or
-            bas[1] < 0 or bas[1] >= YUKSEKLIK
-        )
+        if hayalet_mod:
+            return (
+                bas[0] < 0 or bas[0] >= GENISLIK or
+                bas[1] < 0 or bas[1] >= YUKSEKLIK
+            )
+        else:
+            return (
+                bas in self.beden[1:] or
+                bas in engeller or
+                bas[0] < 0 or bas[0] >= GENISLIK or
+                bas[1] < 0 or bas[1] >= YUKSEKLIK
+            )
 
 class Elma:
     def __init__(self, yilan, engeller):
@@ -73,7 +78,7 @@ class Elma:
                 return tur, konum
 
     def ciz(self):
-        renk = mavi if self.tur == "mavi" else kirmizi
+        renk = altin if self.tur == "altin" else kirmizi
         pygame.draw.rect(ekran, renk, (*self.konum, HUCRE, HUCRE))
 
 class Oyun:
@@ -92,6 +97,9 @@ class Oyun:
         self.duraklatildi = False
         self.mesaj = ""
         self.mesaj_zamani = 0
+
+        self.hayalet_mod = False
+        self.hayalet_bitis = 0
 
     def tus_kontrol(self, tus):
         if tus == pygame.K_LEFT and self.yilan.yon != "sag":
@@ -122,21 +130,30 @@ class Oyun:
             if gecen >= self.sure_limit:
                 return self.skor
 
+            if self.hayalet_mod and time.time() >= self.hayalet_bitis:
+                self.hayalet_mod = False
+
             yeni_bas = self.yilan.hareket_et()
 
-            if self.yilan.carpisti_mi(self.engeller):
+            if self.yilan.carpisti_mi(self.engeller, self.hayalet_mod):
                 return self.skor
 
             if yeni_bas == self.elma.konum:
                 if self.elma.tur == "kirmizi":
                     self.skor += 1
-                    self.mesaj = random.choice(["Taptaze!", "Lezzetli!", "Güzel seçim!"])
                     self.yilan.kısalt(0)
+                    self.mesaj = random.choice(["Taptaze!", "Lezzetli!", "Güzel seçim!"])
                 else:
                     self.skor += 3
-                    self.mesaj = "ALTIN ELMAYI KAPTIN !"
                     self.yilan.kısalt(-2)
+                    self.mesaj = "ALTIN ELMAYI KAPTIN !"
                 self.mesaj_zamani = time.time()
+
+                # Hayalet mod kontrolü
+                if self.skor % 10 == 0:
+                    self.hayalet_mod = True
+                    self.hayalet_bitis = time.time() + 5
+
                 if self.skor % 5 == 0 and self.hiz < 30:
                     self.hiz += 2
                 self.elma = Elma(self.yilan.beden, self.engeller)
@@ -153,15 +170,19 @@ class Oyun:
             pygame.draw.rect(ekran, gri, (*engel, HUCRE, HUCRE))
 
         for i, parca in enumerate(self.yilan.beden):
+            renk = mor if self.hayalet_mod else (koyu_yesil if i == 0 else yesil)
             if i == 0:
-                pygame.draw.circle(ekran, koyu_yesil, (parca[0] + HUCRE // 2, parca[1] + HUCRE // 2), HUCRE // 2)
+                pygame.draw.circle(ekran, renk, (parca[0] + HUCRE // 2, parca[1] + HUCRE // 2), HUCRE // 2)
             else:
-                pygame.draw.rect(ekran, yesil, (*parca, HUCRE, HUCRE))
+                pygame.draw.rect(ekran, renk, (*parca, HUCRE, HUCRE))
 
         ekran.blit(font.render(f"Skor: {self.skor}", True, beyaz), (10, 10))
         ekran.blit(font.render(f"Kalan Süre: {int(self.sure_limit - gecen)}s", True, beyaz), (GENISLIK - 200, 10))
 
-        if self.mesaj and time.time() - self.mesaj_zamani < 1.5:
+        if self.hayalet_mod:
+            kalan = int(self.hayalet_bitis - time.time())
+            ekran.blit(font.render(f"Hayalet mod: {kalan}s", True, beyaz), (10, 50))
+        elif self.mesaj and time.time() - self.mesaj_zamani < 1.5:
             ekran.blit(font.render(self.mesaj, True, beyaz), (10, 50))
 
         pygame.display.flip()
@@ -213,5 +234,3 @@ while True:
     oyun = Oyun()
     skor = oyun.calistir()
     bitis_ekrani(skor)
-
-
