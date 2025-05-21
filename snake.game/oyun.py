@@ -3,9 +3,9 @@ import random
 import sys
 
 class Oyun:
-    def __init__(self):
+    def __init__(self, ekran):
         self.genislik, self.yukseklik = 600, 400
-        self.ekran = pygame.display.set_mode((self.genislik, self.yukseklik))
+        self.ekran = ekran
         pygame.display.set_caption("Yılan Oyunu")
         self.saat = pygame.time.Clock()
         self.hiz = 10
@@ -74,8 +74,3 @@ class Oyun:
         pygame.quit()
         return self.skor
 
-if __name__ == "__main__":
-    pygame.init()
-    oyun = Oyun()
-    skor = oyun.calistir()
-    print("Oyun Bitti. Skor:", skor)
