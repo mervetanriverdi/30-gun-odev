@@ -3,19 +3,23 @@ import random
 import sys
 
 class Oyun:
-    def __init__(self, ekran):
+    def __init__(self, ekran, hiz=10):
         self.genislik, self.yukseklik = 600, 400
         self.ekran = ekran
         pygame.display.set_caption("Yılan Oyunu")
         self.saat = pygame.time.Clock()
-        self.hiz = 10
+        self.hiz = hiz
         self.yilan_pos = [[100, 50]]
         self.yon = 'RIGHT'
         self.elma = self.yeni_elma()
         self.skor = 0
+        self.font = pygame.font.SysFont(None, 36)
 
     def yeni_elma(self):
-        return [random.randrange(0, self.genislik, 10), random.randrange(0, self.yukseklik, 10)]
+        while True:
+            elma = [random.randrange(0, self.genislik, 10), random.randrange(0, self.yukseklik, 10)]
+            if elma not in self.yilan_pos:
+                return elma
 
     def ciz(self):
         self.ekran.fill((0, 0, 0))
@@ -63,14 +67,23 @@ class Oyun:
                 elif etkinlik.key == pygame.K_RIGHT and self.yon != 'LEFT':
                     self.yon = 'RIGHT'
 
+    def oyun_bitti_ekrani(self):
+        self.ekran.fill((0, 0, 0))
+        yazi = self.font.render(f"Oyun Bitti! Skorunuz: {self.skor}", True, (255, 255, 255))
+        self.ekran.blit(yazi, (self.genislik // 2 - yazi.get_width() // 2, self.yukseklik // 2 - 20))
+        pygame.display.flip()
+        pygame.time.wait(3000)
+
     def calistir(self):
-        while True:
+        oyun_devam = True
+        while oyun_devam:
             self.tus_kontrol()
             self.hareket_et()
             if self.carpisma_kontrol():
-                break
+                oyun_devam = False
             self.ciz()
             self.saat.tick(self.hiz)
+        self.oyun_bitti_ekrani()
         pygame.quit()
         return self.skor
 
