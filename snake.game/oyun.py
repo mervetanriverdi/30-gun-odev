@@ -6,7 +6,6 @@ class Oyun:
     def __init__(self, ekran, hiz=10):
         self.genislik, self.yukseklik = 600, 400
         self.ekran = ekran
-        pygame.display.set_caption("Yılan Oyunu")
         self.saat = pygame.time.Clock()
         self.hiz = hiz
         self.yilan_pos = [[100, 50]]
@@ -14,6 +13,7 @@ class Oyun:
         self.elma = self.yeni_elma()
         self.skor = 0
         self.font = pygame.font.SysFont(None, 36)
+        self.arka_plan_rengi = (0, 0, 0)
 
     def yeni_elma(self):
         while True:
@@ -21,8 +21,15 @@ class Oyun:
             if elma not in self.yilan_pos:
                 return elma
 
+    def rastgele_arka_plan_rengi(self):
+        self.arka_plan_rengi = (
+            random.randint(0, 100),
+            random.randint(0, 100),
+            random.randint(0, 100)
+        )
+
     def ciz(self):
-        self.ekran.fill((0, 0, 0))
+        self.ekran.fill(self.arka_plan_rengi)
         for segment in self.yilan_pos:
             pygame.draw.rect(self.ekran, (0, 255, 0), pygame.Rect(segment[0], segment[1], 10, 10))
         pygame.draw.rect(self.ekran, (255, 0, 0), pygame.Rect(self.elma[0], self.elma[1], 10, 10))
@@ -48,6 +55,7 @@ class Oyun:
         if yeni_bas == self.elma:
             self.skor += 1
             self.elma = self.yeni_elma()
+            self.rastgele_arka_plan_rengi()
         else:
             self.yilan_pos.pop()
 
@@ -74,15 +82,6 @@ class Oyun:
                 elif etkinlik.key == pygame.K_RIGHT and self.yon != 'LEFT':
                     self.yon = 'RIGHT'
 
-    def oyun_bitti_ekrani(self):
-        self.ekran.fill((0, 0, 0))
-        yazi = self.font.render(f"Oyun Bitti! Skorunuz: {self.skor}", True, (255, 255, 255))
-        self.ekran.blit(yazi, (self.genislik // 2 - yazi.get_width() // 2, self.yukseklik // 2 - 20))
-        pygame.display.flip()
-        pygame.time.wait(3000)
-        pygame.quit()
-        sys.exit()
-
     def calistir(self):
         oyun_devam = True
         while oyun_devam:
@@ -92,6 +91,4 @@ class Oyun:
                 oyun_devam = False
             self.ciz()
             self.saat.tick(self.hiz)
-        self.oyun_bitti_ekrani()
-
-
+        return self.skor
