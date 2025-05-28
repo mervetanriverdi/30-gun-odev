@@ -16,3 +16,7 @@
 - Günlük gelişmeler ayrı klasörlerde veya commit mesajlarında takip edilecek.
 
 
+##Yeni oyun 
+
+Bugün yeni bir oyun tasarlamak için plan yaptım. İlkokula giden kardeşim var ve çarpmayı ezberlerken çok zorlanmıştı . Görsel bir şeylerle bağdaştırmak işini kolaylaştırıyordu . Ders çalışmayı sevmediği için tekrar yapmıyordu bu da ezberlemesini güçleştiriyordu. 
+   Bir süre nasıl bir oyun yaparak kardeşime ve diğer çocuklara sevecekleri şekilde öğrenemelerini sağlayacak bir şey oluştururum diye düğündüm ve birkaç taslak yazıp çizdim . Yarın da bununla ilgili nasıl hayata geçiririm bunu anlamak için araştırma yapacağım. 
