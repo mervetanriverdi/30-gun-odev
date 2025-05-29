@@ -12,6 +12,7 @@ class Oyun:
         self.yon = 'RIGHT'
         self.elma = self.yeni_elma()
         self.skor = 0
+        self.son_skor_artisi = 0  # Yeni özellik için eklendi
         self.font = pygame.font.SysFont(None, 36)
         self.arka_plan_rengi = (0, 0, 0)
 
@@ -56,6 +57,11 @@ class Oyun:
             self.skor += 1
             self.elma = self.yeni_elma()
             self.rastgele_arka_plan_rengi()
+
+            # Skora göre hız artışı
+            if self.skor % 5 == 0 and self.skor != self.son_skor_artisi:
+                self.hiz += 2
+                self.son_skor_artisi = self.skor
         else:
             self.yilan_pos.pop()
 
