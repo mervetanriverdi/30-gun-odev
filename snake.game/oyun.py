@@ -12,9 +12,10 @@ class Oyun:
         self.yon = 'RIGHT'
         self.elma = self.yeni_elma()
         self.skor = 0
-        self.son_skor_artisi = 0  # Yeni özellik için eklendi
+        self.son_skor_artisi = 0
         self.font = pygame.font.SysFont(None, 36)
         self.arka_plan_rengi = (0, 0, 0)
+        self.duraklatildi = False  # Duraklatma özelliği
 
     def yeni_elma(self):
         while True:
@@ -38,6 +39,11 @@ class Oyun:
         # Skoru sağ üst köşede göster
         skor_yazi = self.font.render(f"Skor: {self.skor}", True, (255, 255, 255))
         self.ekran.blit(skor_yazi, (self.genislik - skor_yazi.get_width() - 10, 10))
+
+        # Duraklatma mesajı
+        if self.duraklatildi:
+            durdu_yazi = self.font.render("DURDURULDU - 'P' ile devam et", True, (255, 255, 0))
+            self.ekran.blit(durdu_yazi, ((self.genislik - durdu_yazi.get_width()) // 2, self.yukseklik // 2))
 
         pygame.display.flip()
 
@@ -79,22 +85,39 @@ class Oyun:
                 pygame.quit()
                 sys.exit()
             elif etkinlik.type == pygame.KEYDOWN:
-                if etkinlik.key == pygame.K_UP and self.yon != 'DOWN':
-                    self.yon = 'UP'
-                elif etkinlik.key == pygame.K_DOWN and self.yon != 'UP':
-                    self.yon = 'DOWN'
-                elif etkinlik.key == pygame.K_LEFT and self.yon != 'RIGHT':
-                    self.yon = 'LEFT'
-                elif etkinlik.key == pygame.K_RIGHT and self.yon != 'LEFT':
-                    self.yon = 'RIGHT'
+                if etkinlik.key == pygame.K_p:
+                    self.duraklatildi = not self.duraklatildi  # P tuşu ile duraklat/devam
+                elif not self.duraklatildi:  # Duraklatıldıysa yön değiştirmesin
+                    if etkinlik.key == pygame.K_UP and self.yon != 'DOWN':
+                        self.yon = 'UP'
+                    elif etkinlik.key == pygame.K_DOWN and self.yon != 'UP':
+                        self.yon = 'DOWN'
+                    elif etkinlik.key == pygame.K_LEFT and self.yon != 'RIGHT':
+                        self.yon = 'LEFT'
+                    elif etkinlik.key == pygame.K_RIGHT and self.yon != 'LEFT':
+                        self.yon = 'RIGHT'
+
+    def oyun_bitti_ekrani(self):
+        oyun_bitti_yazi = self.font.render("Game Over!", True, (255, 0, 0))
+        skor_yazi = self.font.render(f"Skorunuz: {self.skor}", True, (255, 255, 255))
+
+        self.ekran.fill((0, 0, 0))
+        self.ekran.blit(oyun_bitti_yazi, ((self.genislik - oyun_bitti_yazi.get_width()) // 2, self.yukseklik // 2 - 30))
+        self.ekran.blit(skor_yazi, ((self.genislik - skor_yazi.get_width()) // 2, self.yukseklik // 2 + 10))
+        pygame.display.flip()
+        pygame.time.wait(3000)
 
     def calistir(self):
         oyun_devam = True
         while oyun_devam:
             self.tus_kontrol()
-            self.hareket_et()
-            if self.carpisma_kontrol():
-                oyun_devam = False
+            if not self.duraklatildi:
+                self.hareket_et()
+                if self.carpisma_kontrol():
+                    oyun_devam = False
             self.ciz()
             self.saat.tick(self.hiz)
+
+        self.oyun_bitti_ekrani()
         return self.skor
+
