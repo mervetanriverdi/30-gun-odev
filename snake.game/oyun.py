@@ -15,7 +15,7 @@ class Oyun:
         self.son_skor_artisi = 0
         self.font = pygame.font.SysFont(None, 36)
         self.arka_plan_rengi = (0, 0, 0)
-        self.duraklatildi = False  # Duraklatma özelliği
+        self.duraklatildi = False
 
     def yeni_elma(self):
         while True:
@@ -36,11 +36,9 @@ class Oyun:
             pygame.draw.rect(self.ekran, (0, 255, 0), pygame.Rect(segment[0], segment[1], 10, 10))
         pygame.draw.rect(self.ekran, (255, 0, 0), pygame.Rect(self.elma[0], self.elma[1], 10, 10))
 
-        # Skoru sağ üst köşede göster
         skor_yazi = self.font.render(f"Skor: {self.skor}", True, (255, 255, 255))
         self.ekran.blit(skor_yazi, (self.genislik - skor_yazi.get_width() - 10, 10))
 
-        # Duraklatma mesajı
         if self.duraklatildi:
             durdu_yazi = self.font.render("DURDURULDU - 'P' ile devam et", True, (255, 255, 0))
             self.ekran.blit(durdu_yazi, ((self.genislik - durdu_yazi.get_width()) // 2, self.yukseklik // 2))
@@ -64,7 +62,6 @@ class Oyun:
             self.elma = self.yeni_elma()
             self.rastgele_arka_plan_rengi()
 
-            # Skora göre hız artışı
             if self.skor % 5 == 0 and self.skor != self.son_skor_artisi:
                 self.hiz += 2
                 self.son_skor_artisi = self.skor
@@ -86,8 +83,8 @@ class Oyun:
                 sys.exit()
             elif etkinlik.type == pygame.KEYDOWN:
                 if etkinlik.key == pygame.K_p:
-                    self.duraklatildi = not self.duraklatildi  # P tuşu ile duraklat/devam
-                elif not self.duraklatildi:  # Duraklatıldıysa yön değiştirmesin
+                    self.duraklatildi = not self.duraklatildi
+                elif not self.duraklatildi:
                     if etkinlik.key == pygame.K_UP and self.yon != 'DOWN':
                         self.yon = 'UP'
                     elif etkinlik.key == pygame.K_DOWN and self.yon != 'UP':
@@ -100,24 +97,48 @@ class Oyun:
     def oyun_bitti_ekrani(self):
         oyun_bitti_yazi = self.font.render("Game Over!", True, (255, 0, 0))
         skor_yazi = self.font.render(f"Skorunuz: {self.skor}", True, (255, 255, 255))
+        tekrar_yazi = self.font.render("Y: Yeniden Başla | Q: Çık", True, (255, 255, 0))
 
         self.ekran.fill((0, 0, 0))
-        self.ekran.blit(oyun_bitti_yazi, ((self.genislik - oyun_bitti_yazi.get_width()) // 2, self.yukseklik // 2 - 30))
-        self.ekran.blit(skor_yazi, ((self.genislik - skor_yazi.get_width()) // 2, self.yukseklik // 2 + 10))
+        self.ekran.blit(oyun_bitti_yazi, ((self.genislik - oyun_bitti_yazi.get_width()) // 2, self.yukseklik // 2 - 50))
+        self.ekran.blit(skor_yazi, ((self.genislik - skor_yazi.get_width()) // 2, self.yukseklik // 2 - 10))
+        self.ekran.blit(tekrar_yazi, ((self.genislik - tekrar_yazi.get_width()) // 2, self.yukseklik // 2 + 30))
         pygame.display.flip()
-        pygame.time.wait(3000)
+
+        while True:
+            for etkinlik in pygame.event.get():
+                if etkinlik.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif etkinlik.type == pygame.KEYDOWN:
+                    if etkinlik.key == pygame.K_y:
+                        return True
+                    elif etkinlik.key == pygame.K_q:
+                        return False
 
     def calistir(self):
-        oyun_devam = True
-        while oyun_devam:
-            self.tus_kontrol()
-            if not self.duraklatildi:
-                self.hareket_et()
-                if self.carpisma_kontrol():
-                    oyun_devam = False
-            self.ciz()
-            self.saat.tick(self.hiz)
+        while True:
+            # Oyun başlangıç değerleri
+            self.yilan_pos = [[100, 50]]
+            self.yon = 'RIGHT'
+            self.elma = self.yeni_elma()
+            self.skor = 0
+            self.son_skor_artisi = 0
+            self.hiz = 10
+            self.arka_plan_rengi = (0, 0, 0)
+            self.duraklatildi = False
 
-        self.oyun_bitti_ekrani()
-        return self.skor
+            oyun_devam = True
+            while oyun_devam:
+                self.tus_kontrol()
+                if not self.duraklatildi:
+                    self.hareket_et()
+                    if self.carpisma_kontrol():
+                        oyun_devam = False
+                self.ciz()
+                self.saat.tick(self.hiz)
+
+            yeniden = self.oyun_bitti_ekrani()
+            if not yeniden:
+                break
 
