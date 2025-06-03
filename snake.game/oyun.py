@@ -118,7 +118,6 @@ class Oyun:
 
     def calistir(self):
         while True:
-            # Oyun başlangıç değerleri
             self.yilan_pos = [[100, 50]]
             self.yon = 'RIGHT'
             self.elma = self.yeni_elma()
@@ -141,4 +140,6 @@ class Oyun:
             yeniden = self.oyun_bitti_ekrani()
             if not yeniden:
                 break
+
+        return self.skor
 
